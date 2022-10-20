@@ -4,140 +4,128 @@
 
 #include <iostream>
 #include <string>
-#include <unordered_map>
 #include <vector>
-
+#include <unordered_map>
 using namespace std;
+vector < int > p, height, setSize;
+int numSets;
+void initialize(int N) {
+  p.assign(N, 0);
+  for (int i = 0; i < N; ++i)
+    p[i] = i;
+  height.assign(N, 0); // optional speedup
+  setSize.assign(N, 1); // optional feature
+  numSets = N; // optional feature
+}
+int findSet(int i) {
+  if (p[i] == i)
+    return i;
+  p[i] = findSet(p[i]); // Path Compression
 
-int M,N;
-int count = 1;
-
-const int mx = 1e5+5;
-
-unordered_map<string, int> snum;
-vector<int> parent, size1, parent2, size2;
-
-void make_set(int v, int s) {
-    if (s == 1) {
-        parent[v] = v;
-        size1[v] = 1;
-    } else {
-        parent2[v] = v;
-        size2[v] = 1;
-    }
+  // debug
+   // cout << "Node: "<< i << " found in " << findSet(p[i]) << "\n"; 
+  // debug
+  return p[i];
+}
+bool isSameSet(int i, int j) {
+  return findSet(i) == findSet(j);
 }
 
-int find_set(int v, int s) {
-    if (s == 1) {
-        if (v == parent[v]) {
-            return v;
-        }
-        parent[v] = find_set(parent[v],1);
-        return parent[v];
-    } else {
-        if (v == parent2[v]) {
-            return v;
-        }
-        parent2[v] = find_set(parent2[v],2);
-        return parent2[v];
-    }
-}
-// f(1) = 2
-// f(2) = 1
-
-bool isSameGroupSet(int i, int j, int s) {
-    int a = find_set(i,s); // root of i in set s
-    int b = find_set(j,s); // root of j in set s
-    if (s == 2) {
-        s = 1;
-    } else {
-        s = 2;
-    }
-    int c = find_set(i,s); // root of i in set not s
-    int d = find_set(j,s); // root of j in set not s
-    cout << a << "\n";
-    cout << b << "\n";
-    cout << c << "\n";
-    cout << d << "\n";
-    return a == d || a == b || b == c || c == d;
-}
-
-bool isSameSet(int i, int j, int s)
+int numDisjointSets() // optional
 {
-    return find_set(i, s) == find_set(j, s);
+  return numSets;
+}
+int sizeOfSet(int i) // optional
+{
+  return setSize[findSet(i)];
 }
 
-void union_sets(int a, int b, int s) {
-    if (s == 1) {
-        a = find_set(a,1);
-        b = find_set(b,1);
-        if (a != b) {
-            if (size1[a] < size1[b]) {
-                swap(a,b);
-            }
-            parent[b] = a;
-            size1[a] += size1[b];
-        }
-    } else {
-        a = find_set(a,2);
-        b = find_set(b,2);
-        if (a != b) {
-            if (size2[a] < size2[b]) {
-                swap(a,b);
-            }
-            parent2[b] = a;
-            size2[a] += size2[b];
-        }
-    }
+void unionSet(int i, int j) {
+  if (isSameSet(i, j)) // i and j are in same set
+    return;
+  int x = findSet(i); // find rep items
+  int y = findSet(j); // find rep items
+  if (height[x] > height[y])
+    swap(x, y); // Union by rank
+  p[x] = y; // set x under y
+  if (height[x] == height[y])
+    ++height[y]; // optional speedup
+  setSize[y] += setSize[x]; // combine set sizes at y
+  --numSets; // a union reduces numSets
 }
 
-// parent1 -> parallel relationships
-// parent2 -> intersect relationships
+unordered_map<string, int> nums;
 
 int main() {
-    parent.assign(mx, 0);
-    size1.assign(mx,0);
-    parent2.assign(mx,0);
-    for (int i = 1; i <= mx; i++) {
-        parent[i] = i;
-        parent2[i] = i;
-    }
-    size2.assign(mx,0);
-    cin >> M >> N;
-    for (int i = 0; i < M; i++) {
+    int m,n;
+    cin >> m >> n;
+    initialize(m*5); // max number of streets given input
+    // times 2 because everything could just be unique
+    // times another 2 to account for perpendicular vals
+    // adding 1 so we get * 5 to avoid a segfault
+    int runningCounter = 0;
+    for (int i = 0; i < m; i++) {
         string a, b, c;
         cin >> a >> b >> c;
-        int q = 3;
+        if (nums.find(a) == nums.end()) { // a not in nums
+            nums[a] = runningCounter;
+            // adding "hgja1012" at the end of string to indicate perpendicular
+            runningCounter++;
+            nums[a+"hgja1012"] = runningCounter;
+            runningCounter++;
+        }
+        if (nums.find(b) == nums.end()) {
+            nums[b] = runningCounter;
+            runningCounter++;
+            nums[b+"hgja1012"] = runningCounter;
+            runningCounter++;
+        }
         if (c == "parallel") {
-            q = 1;
-        } else {
-            q = 2;
-        }
-        if (snum[a] == 0) {
-            snum[a] = count;
-            count++;
-            make_set(snum[a],q);
-        }
-        if (snum[b] == 0) {
-            snum[b] = count;
-            count++;
-            make_set(snum[b],q);
-        }
-        union_sets(snum[a],snum[b],q);
-        if (isSameSet(snum[a],snum[b],1) == true && isSameSet(snum[a],snum[b],2) == true) {
-            cout << "Waterloo" << "\n";
-            return 0;
+            unionSet(nums[a],nums[b]);
+        } else if (c == "intersect") {
+            unionSet(nums[a+"hgja1012"],nums[b]);
+            unionSet(nums[a],nums[b+"hgja1012"]);
+            //intersecting lines are assumed to be perpendicular, (follows manhatten assumption)
+            // if statement below checks whether or not this is true
+
+            if (isSameSet(nums[a+"hgja1012"],nums[b+"hgja1012"])) {
+                cout << "Waterloo" << "\n";
+                return 0;
+            }
         }
     }
-    for (int i = 0; i < N; i++) {
+    // in cities following the manhatten assumption (code that runs past this point)
+    // all lines can really only be vertical and horizontal
+    // all vert's will intersect with all horiz's
+    // and vice versa
+    for (int i = 0; i < n; i++) {
         string a, b;
         cin >> a >> b;
-        if (isSameGroupSet(snum[a],snum[b],1)) {
+        if (nums.find(a) == nums.end()) { // a not in nums
+            nums[a] = runningCounter;
+            // adding "hgja1012" at the end of string to indicate perpendicular
+            runningCounter++;
+            nums[a+"hgja1012"] = runningCounter;
+            runningCounter++;
+        }
+        if (nums.find(b) == nums.end()) {
+            nums[b] = runningCounter;
+            runningCounter++;
+            nums[b+"hgja1012"] = runningCounter;
+            runningCounter++;
+        }
+
+
+        if (isSameSet(nums[a],nums[b])) {
             cout << "parallel" << "\n";
-        } else if (isSameGroupSet(snum[a],snum[b],2)) {
+        } else if (isSameSet(nums[a+"hgja1012"],nums[b]) || isSameSet(nums[a],nums[b+"hgja1012"])) {
             cout << "intersect" << "\n";
         } else {
             cout << "unknown" << "\n";
         }
     }
 }
+
+// make additional entries in the disjoint data structure for perpendicular streets to each street
+// street1 should have a street1 perpendicular
+// so if street 2 is perpendicular to street 1 then street2 and street1 perpendicular should be in the same set
