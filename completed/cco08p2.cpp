@@ -15,7 +15,7 @@ void initialize(int N) {
     p[i] = i;
   height.assign(N, 0); // optional speedup
   setSize.assign(N, 1); // optional feature
-  numSets = N; // optional feature
+  numSets = N - (N/20) * 19; // optional feature
 }
 int findSet(int i) {
   if (p[i] == i)
@@ -59,10 +59,12 @@ unordered_map<string, int> nums;
 int main() {
     int m,n;
     cin >> m >> n;
-    initialize(m*5); // max number of streets given input
+    initialize(m*20); // max number of streets given input
     // times 2 because everything could just be unique
     // times another 2 to account for perpendicular vals
     // adding 1 so we get * 5 to avoid a segfault
+    // adding 15 to avoid a segfault
+    // worked
     int runningCounter = 0;
     for (int i = 0; i < m; i++) {
         string a, b, c;
@@ -81,6 +83,9 @@ int main() {
             runningCounter++;
         }
         if (c == "parallel") {
+            unionSet(nums[a+"hgja1012"],nums[b+"hgja1012"]); 
+            // adding this line of code made submissions work for all testcases, AC'ing this question for me.
+            // this code is important because we realize that if 2 lines are parallel, their perpendicular lines are parallel
             unionSet(nums[a],nums[b]);
         } else if (c == "intersect") {
             unionSet(nums[a+"hgja1012"],nums[b]);
@@ -105,18 +110,20 @@ int main() {
             nums[a] = runningCounter;
             // adding "hgja1012" at the end of string to indicate perpendicular
             runningCounter++;
-            nums[a+"hgja1012"] = runningCounter;
+            //nums[a+"hgja1012"] = runningCounter;
+            nums.insert(make_pair(a+"hgja1012",runningCounter));
             runningCounter++;
         }
         if (nums.find(b) == nums.end()) {
             nums[b] = runningCounter;
             runningCounter++;
-            nums[b+"hgja1012"] = runningCounter;
+           // nums[b+"hgja1012"] = runningCounter;
+            nums.insert(make_pair(b+"hgja1012",runningCounter));
             runningCounter++;
         }
-
-
-        if (isSameSet(nums[a],nums[b])) {
+        
+        
+        if (isSameSet(nums[a],nums[b]) || isSameSet(nums[a+"hgja1012"],nums[b+"hgja1012"])) {
             cout << "parallel" << "\n";
         } else if (isSameSet(nums[a+"hgja1012"],nums[b]) || isSameSet(nums[a],nums[b+"hgja1012"])) {
             cout << "intersect" << "\n";
