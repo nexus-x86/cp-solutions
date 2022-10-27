@@ -1,39 +1,41 @@
 // https://dmoj.ca/problem/ccc09s2
 // https://github.com/nexus-x86/cp-solutions
-// Saturday October 22
+// Saturday October 22 2022
 
 #include <iostream>
-#include <bitset>
+#include <set>
+#include <vector>
 
 using namespace std;
 
-int lights[30][8];
-int xorLights[30][8];
+int rows, columns;
+vector<int> grid;
 
 int main() {
-    int R, L;
-    // if button k is pressed, is there any point of pressing button i with i < k
-    // the final answer shuldn't be that big right?
-    // XOR all columns
-
-    cin >> R >> L;
-    for (int i = 0; i < R; i++) {
-        for (int j = 0; j < L; j++) {
-            cin >> lights[i][j];
+    cin >> rows >> columns;
+    for (int i = 0; i < rows; i++) {
+        int n = 0;
+        for (int j = 0; j < columns; j++) {
+            int d;
+            cin >> d;
+            n = ((n << 1) | d); 
+            // moves the binary to the left and adds a zero (multiplying 2)
+            // and then | d.
+            // bitwise or
+            // 0 | 0 = 0
+            // 0 | 1 = 1
+            // 1 | 0 = 1
+            // 1 | 1 = 1
         }
+        // at the end, n is converted into decimal
+        grid.push_back(n);
     }
-    // a ^ b
-    for (int i = 1; i < R; i++) {
-        for (int j = 0; j < L; j++) {
-            xorLights[i][j] = lights[i-1][j] ^ lights[i][j];
-            cout << xorLights[i][j] << " ";
-        }
-        cout << "\n";
+    set<int> xors;
+    int last = 0;
+    // 0 xor X = X
+    for (int i = rows-1; i >= 0; i--) {
+        last = last ^ grid[i]; // xor calculating the bottom row
+        xors.insert(last);
     }
-    int sum = 0;
-    for (int a = 0; a < L; a++) {
-
-    }
-    // it takes a certain level of emotional maturity to be great
-    // it takes an insane level of work ethic
+    cout << xors.size() << "\n";
 }
