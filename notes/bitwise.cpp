@@ -77,5 +77,10 @@ int main() {
 
     cout << fastExp(7,20) << "\n";
     
-    
+
+    // GNU C++ compiler functinos for bitmasking
+    int n = 20;
+    __builtin_popcount( n ); // coutns the number of bits that are on in n
+    __builtin_ctz( n ); // number of trailing zeroes of n in binary
+    __builtin_clz ( n ); // number of leading zeroes of n in binary
 }
