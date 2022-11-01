@@ -4,20 +4,43 @@
 
 #include <iostream>
 #include <vector>
+#include <set>
+
 using namespace std;
 
+long long f(long long a, long long b) {
+    return (a*(a+1)/2)+(b*(b-1)/2);
+}
+
 int main() {
-    int K;
+    long long K;
     cin >> K;
-
-    vector<int> A; // length N
-
-    // Given an integer array A of length N
-    // (1 <= N <= 1e6)
-    // where elements are [-1e9,1e9]
-    // output the number of non-empty contiguous subarrays with an even sum
-    
-    // we want to make test data for this problem
-    // find an array of length n with exactly K non-empty contiguous subarrays with an even sum
-    
+    long long a = 1000000;
+    long long b = 0;
+    if (K == 0) {
+        cout << "1" << "\n" << "1" << "\n";
+        return 0;
+    }
+    while (a >= b && a > 0) {
+        if (f(a,b) == K && a + b <= 1000000) {
+            cout << a + b << "\n" << "0";
+            for (int i = 1; i < a; i++) {
+                cout << " 0";
+            }
+            if (b > 0) {
+                cout << " 1";
+                for (int i = 1; i < b; i++) {
+                    cout << " 0";
+                }
+            }
+            cout << "\n";
+            return 0;
+        }
+        if (f(a,b) > K) {
+            a--;
+        } else {
+            b++;
+        }
+    }
+    cout << -1 << "\n";
 }
