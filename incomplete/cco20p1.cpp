@@ -3,44 +3,57 @@
 // Saturday November 5
 
 #include <iostream>
+#include <math.h>
 #include <unordered_map>
-
+#include <algorithm>
+#include <vector>
 using namespace std;
 
-unordered_map<int,int> pointsOverlap;
+typedef long long ll;
 
 int main() {
-    int N;
-    int L,R,Y;
+    cin.sync_with_stdio(0);
+    cin.tie(0);
+    ll N, L, R;
+    long double Y;
     cin >> N >> L >> R >> Y;
-    /*
-        N friends
-        we can hide from L to R inclusive
-        Y is the y value we can hide on
-    */
-    for (int i = 0; i < N; i++) {
-        int x,v,h;
-        cin >> x >> v >> h;
-        // 0 = (v/h)x+b
-        // b = -(v/h)x
+    unordered_map<ll,ll> numToPeople;
+    unordered_map<ll,ll> counter;
+    for (ll i = 0; i < N; i++) {
+        long double xi, vi, hi;
+        cin >> xi >> vi >> hi;
+        long double left = (hi/vi) * (Y + (vi/hi)*xi);
+        long double right = (hi/-vi) * (Y + (-vi/hi) * xi);
+        long double a = min(left,right);
+        right = max(left,right);
+        left = a;
+        left = (ll)floor(left);
+        right = (ll)ceil(right);
 
-        double b = -(v/h) * x;
-
-        // 0 = (-v/h)x+b2
-        // b2 = -(-v/h)x
-
-        double b2 = -(-v/h) * x;
-
-        // y = (v/h)x + b
-        
-        // (Y - b)/(v/h)=x
-        // (Y-b)/(-v/h)=x
-
-        double x1val = (Y-b) / ((v/h));
-        double x2val = (Y -b)/ ((-v/h));
-        cout << x1val << " : " << x2val << "\n";
+        if (left < L) {
+            numToPeople[L] += 1;
+        } else {
+            numToPeople[left] += 1;
+        }
+        if (right-1 > R) {
+            numToPeople[R] -= 1;
+        } else {
+            numToPeople[right-1] -= 1;
+        }
     }
-    for (int i = L; i <= R; i++) {
-        
+    for (ll i = L; i <= R; i++) {
+        if (i != L) {
+            numToPeople[i] += numToPeople[i-1];
+        }
+        //cout << numToPeople[i] << " ";
+        counter[numToPeople[i]] += 1;
+    }
+    cout << "\n";
+    ll previous = 0;
+    ll current = 0;
+    for (ll i = 0; i <= N; i++) {
+        current = counter[i];
+        cout << current + previous << "\n";
+        previous += current;
     }
 }
