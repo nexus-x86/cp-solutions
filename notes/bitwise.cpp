@@ -1,5 +1,3 @@
-// info on printf
-#include <cstdio> // necessary for printf
 #include <bitset>
 #include <string>
 #include <iostream>
@@ -18,11 +16,6 @@ long long fastExp(long long a, long long n) {
 }
 
 int main() {
-    printf("%08d\n",42); // the %08d prints an integer with 8 characters in width and adds leading zeroes, the width
-    // of the number is length 8
-    printf("%.2f\n", 42.2); // %.2f means float with two places after decimal point
-
-
     // some bitwise operators
     // bitwise not  ~ a     
     // bitwise and a & b
