@@ -1,147 +1,134 @@
 #include <iostream>
 #include <vector>
-#include <unordered_map>
 #include <queue>
+#include <cstring>
+#include <tuple>
 #include <algorithm>
 
-const  int vertices = 6;
-
-priority_queue<int> myFavouritePQ;
-vector<int> visited (vertices,0);
-//vector<pair<int,int>> adjList[vertices];
-unordered_map<int, vector<pair<int,int>>> adjList[vertices];
-
-vector<int> p, height, setSize;
-
-int numSets;
-
-void initialize(int N)
-{
-    p.assign(N, 0);
-    for (int i = 0; i < N; ++i)
-        p[i] = i;
-    height.assign(N, 0);  // optional speedup
-    setSize.assign(N, 1); // optional feature
-    numSets = N;          // optional feature
-}
-int findSet(int i)
-{
-    if (p[i] == i)
-        return i;
-    p[i] = findSet(p[i]); // Path Compression
-    return p[i];
-}
-bool isSameSet(int i, int j)
-{
-    return findSet(i) == findSet(j);
-}
-
-int numDisjointSets() // optional
-{
-    return numSets;
-}
-int sizeOfSet(int i) // optional
-{
-    return setSize[findSet(i)];
-}
-
-void union_Set(int i, int j)
-{
-    if (isSameSet(i, j)) // i and j are in same set
-        return;
-    int x = findSet(i); // find rep items
-    int y = findSet(j); // find rep items
-    if (height[x] > height[y])
-        swap(x, y); // union_Set by rank
-    p[x] = y;       // set x under y
-    if (height[x] == height[y])
-        ++height[y];          // optional speedup
-    setSize[y] += setSize[x]; // combine set sizes at y
-    --numSets;                // a union_Set reduces numSets
-}
-
-// adjlist[vertice].pushback(make_pair(1,2)) where 1 is the next vertice 
-// and 2 is the weight
-int minimumCost = 0;
-void PrimsAlgorithm(int curr) {
-    /*
-    prim's algorithm (jarnik's algorithm)
-    An O(E Log V) greedy algorithm that finds the minimum spanning tree of a connected graph.
-    1. let visited be the set of visited vertices
-    2. Start with any vertex and place it in visited. 
-    3. Repeatedly pick the edge with minimum weight that is connected to a visited vertex
-     and an unvisited  vertex. Each time add the other end of the new edge to visited. The list of possible
-     edges is saved in a priority queue. In the case of a tie, pick the vertex with a larger label
-    4. stop when all the vertices are in visited or when you run out of all the edges in your priority queue
-    */
-
-    visited[curr] = 1;
-    int minimum = INT_MAX;
-    int minimumEdge = 0;
-    for (vector<pair<int,int>> ToandWeightPair : adjList[curr]) {
-        int toVertice = ToandWeightPair.first;
-        int weight = ToandWeightPair.second;
-        if (visited[toVertice] == 1) {
-            continue;
-        }
-        if (weight < minimum) {
-            minimum = weight;
-            minimumEdge = toVertice;
-            visited[toVertice] = 1; // other end off the new edge is added to visited
-
-        }
-    }
-    PrimsAlgorithm(minimumEdge);
-}
-
-void KruskalsAlgorithm(int curr) {
-    /*
-    1. sort all edges in non-decreasing order of their weight
-    pick the smallest edge. check if it forms a cycle with the spanning tree formed so far
-    2. if a cycle is not formed, include this edge. otherwise discard it. use a disjoint set union to do this.
-    we can use union find algorithm to do this easily.
-    3. repeat step #2 until there are v-1 edges in the spanning tree
-    */
-   sort(adjList.first,adjList.second);
-
-   
-
-}
-
-void addEdge(int fromVert, int toVert, int weightOfEdge) {
-    adjList[fromVert].push_back({toVert,weightOfEdge});
-    adjList[toVert].push_back({fromVert,weightOfEdge});
-
-}
-
 using namespace std;
+
+const int mx = 1e5;
+vector<vector<pair<int,int>>> adjList(mx); // endpoint, weight
+vector<tuple<int,int,int>> edgeList; // weight, start, end
+bool connected[mx];
+priority_queue<pair<int,int>> pq; // weight, endpoint
+
+void addEdge(int v1, int v2, int wt) {
+    adjList[v1].push_back(make_pair(v2,wt));
+    adjList[v2].push_back(make_pair(v1,wt));
+    edgeList.push_back(make_tuple(wt,v1,v2));
+}
+
 int main() {
     /*
-    A1 
-    B2
-    C3
-    D4
-    E5
-    F6
+    A tree represents a hierarchical tree structure.
+    Each node can be connected to any amount of children but each node
+    can only have exactly 1 parent
+    Except the root.
+    Basically, no cycles, no loops
+
+    A spanning tree is a subgraph of an undirected connected graph
+    that includes all the vertices of the original graph
+
+    When there is only 1 connected component in our graph, the spanning forest
+    is the same as the spanning tree, but when there are multiple connected components
+    each component will have a spanning tree and all those trees
+    constitute a forest
+    more info: https://stackoverflow.com/questions/43252588/spanning-tree-vs-spanning-forest    
+
+    Minimum spanning tree (MST), a spanning tree that has the minimum weight
     */
-    addEdge(1,2,1);
-    addEdge(2,3,3);
-    addEdge(2,4,2);
-    addEdge(4,5,3);
-    addEdge(5,6,2);
-    PrimsAlgorithm(1); // start at vertex 1
-    cout << minimumCost << "\n";
+    
+    // using the https://en.wikipedia.org/wiki/Minimum_spanning_tree 
+    // spanning tree example for testing purposes
+
+    addEdge(1,2,9);
+    addEdge(2,3,6);
+    addEdge(3,4,9);
+    addEdge(4,5,4);
+    addEdge(5,6,4);
+    addEdge(6,1,18);
+    addEdge(2,8,3);
+    addEdge(1,8,9);
+    addEdge(3,8,4);
+    addEdge(8,7,9);
+    addEdge(8,9,2);
+    addEdge(1,7,8);
+    addEdge(7,9,8);
+    addEdge(3,9,2);
+    addEdge(9,4,9);
+    addEdge(4,7,7);
+    addEdge(7,6,10);
+    addEdge(7,10,9);
+    addEdge(10,4,5);
+    addEdge(10,5,1);
+    addEdge(10,6,3);
+
+    addEdge(11,12,1); // second connected component of the graph
+    addEdge(12,13,2);
+    int vertices = 13;
     /*
-    a spanning tree is a subgraph of an undirected connected graph that is a tree which includes 
-    all the vertices of the original graph
-    a minimum spanning tree (MST): if a graph is edge-weighted then the minimum spanning tree is
-    the spanning tree whose weight is the minimum
+    Prim's Algorithm (aka Jarnik's Algorithm)
+    An O(E log V) greedy algorithm to find the minimum spanning tree of a connected graph
+
+    Start with any vertex and place it in connected,
+    Pick the edge with minimum weight that is connected to a connected vertex
+    and an unconnected vertex. 
+    each time add the other end of the new edge to connected
+    stop whenn all edges are visited
+    */
+
+    int cost = 0;
+    connected[1] = true;
+    for (pair<int,int> i : adjList[1]) {
+        pq.push({-i.second,-i.first});
+    }
+    while (!pq.empty()) {
+        pair<int,int> x = pq.top();
+        pq.pop();
+        if (!connected[-x.second]) {
+            cost += -x.first;
+            connected[-x.second] = true;
+            for (pair<int,int> i : adjList[-x.second]) {
+                if (!connected[-i.first]) {
+                    pq.push({-i.second,-i.first});
+                }
+            }
+        }
+    }
+    cout << cost << "\n"; // expected output is 38
+
+    /*
+    Kruskal's Algorithm 
+    An O(E log V) greedy algorithm to find the minimum spanning forest
+    
+    sort all edges in ascending order based on weight
+    pick the edge with the minimum weight that joins 2 disjoint sets
+    use a UFDS (union find data structure)
+    stop when all edges are considered
     */
     
-    initialize(10);
-
-    //declare a connected graph with edge weight
-
-    addEdge(5,4,2);
-    
+    // UFDS declarations
+    vector<int> parent(vertices+1);
+    for (int i = 1; i <= vertices; i++) {
+        parent[i] = i;
+    }
+    sort(edgeList.begin(),edgeList.end());
+    int cost2 = 0;
+    for (tuple<int,int,int> x : edgeList) {
+        int v1 = get<1>(x);
+        while (v1 != parent[v1]) {
+            v1 = parent[v1];
+        }
+        int v2 = get<2>(x);
+        while (v2 != parent[v2]) {
+            v2 = parent[v2];
+        }
+        if (v1 != v2) {
+            parent[v2] = v1;
+            cost2 += get<0>(x);
+        }
+    }
+    cout << cost2 << "\n"; // outputs 41, which is correct.
+    // there is a 11,12,13 component and an everything else component
 }
