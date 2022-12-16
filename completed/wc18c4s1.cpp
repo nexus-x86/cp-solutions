@@ -2,67 +2,61 @@
 // https://github.com/nexus-x86/cp-solutions
 // Thursday October 20 2022
 
+/*
+Editorial:
+The idea is to use a disjoint set union, and only union planet connections
+if they are owned by the same race.
+*/
+
 #include <iostream>
-#include <vector>
 #include <string>
+#include <vector>
 
 using namespace std;
 
-vector<int> parent, height;
-
-void initialize(int N) {
-    parent.assign(N,0);
-    for (int i = 0; i < N; i++) {
+int main() {
+    int N, M, K;
+    cin >> N >> M >> K;
+    string R;
+    cin >> R;
+    /*
+    N planets
+    M space routes
+    K friends
+    */
+    vector<int> parent(N + 1);
+    for (int i = 1; i <= N; i++) {
         parent[i] = i;
     }
-    height.assign(N,0);
-}
-
-int findSet(int i) {
-    if (parent[i] == i) {
-        return i;
-    }
-    parent[i] = findSet(parent[i]);
-    return parent[i];
-}
-
-bool isSameSet(int i, int j) {
-    return findSet(i) == findSet(j);
-}
-
-void unionSet(int i, int j) {
-    if (isSameSet(i,j)) {
-        return;
-    }
-    int x = findSet(i);
-    int y = findSet(j);
-    if (height[x] > height[y]) {
-        swap(x,y);
-    }
-    parent[x] = y;
-    if (height[x] == height[y]) {
-        height[y]++;
-    }
-}
-
-int N, M, K;
-string R;
-
-int main() {
-    cin >> N >> M >> K >> R;
-    int counter = 0;
-    initialize(N+1);
     for (int i = 0; i < M; i++) {
-        int a, b;
-        cin >> a >> b;
-        if (R.at(a-1) == R.at(b-1)){
-            unionSet(a,b);
+        int A, B;
+        cin >> A >> B;
+        if (R.at(A-1) == R.at(B-1)) {
+            int vertex1 = A;
+            int vertex2 = B;
+
+            while (vertex1 != parent[vertex1]) {
+                vertex1 = parent[vertex1];
+            }
+            while (vertex2 != parent[vertex2]) {
+                vertex2 = parent[vertex2];
+            }
+            if (vertex1 != vertex2) {
+                parent[vertex2] = vertex1;
+            }
         }
     }
-    for (int j = 0; j < K; j++) {
-        int x,y;
-        cin >> x >> y;
-        if (findSet(x) == findSet(y)) {
+    int counter = 0;
+    for (int i = 0; i < K; i++) {
+        int X, Y;
+        cin >> X >> Y;
+        while (X != parent[X]) {
+            X = parent[X];
+        }
+        while (Y != parent[Y]) {
+            Y = parent[Y];
+        }
+        if (X == Y) {
             counter++;
         }
     }

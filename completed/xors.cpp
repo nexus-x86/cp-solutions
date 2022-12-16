@@ -2,10 +2,17 @@
 // https://github.com/nexus-x86/cp-solutions
 // Wednesday October 26 2022 
 
+/*
+Editorial:
+Dangerously easy to overcomplicate this problem.
+No special technique used.
+Problem solvers will have to realize that the minimum XOR sum is just the entire
+list XOR'D, and the maximum XOR sum is each individual element added
+*/
+
 #include <iostream>
 
 using namespace std;
-
 
 int main() {
     int N;
