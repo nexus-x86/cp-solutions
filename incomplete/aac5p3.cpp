@@ -1,102 +1,64 @@
 // https://dmoj.ca/problem/aac5p3
 // https://github.com/nexus-x86/cp-solutions
-// Thursday November 17
+// Thursday November 17 2022
 
 #include <iostream>
 #include <vector>
-#include <unordered_map>
-#include <string.h>
+#include <stack>
 using namespace std;
-typedef long long ll;
 
-ll N, K;
-const ll mx = 1e5*2+5;
-ll skillLevel[mx]; // measures the skill level of panda's
-ll breakPoints[mx]; // the output array, increment an index by 1 if a panda makes it
-ll visited[mx] = {0}; // reset this array every new panda
+const int mx = 1e9+5;
+int N, K;
+vector<vector<pair<int,int>>> adjList;
+int skillLevels[mx];
+int visited[mx];
+pair<int,int> range[mx];
 
-//vector<pair<ll,ll>> adjList(mx); // stores relations
+void dfs(int v, pair<int,int> bounds) {
+    visited[v] = 1;
+    int left = bounds.first;
+    int right = bounds.second;
+    if (left > right || (left == 0 && right == 0)) {
+        return;
+    }
+    pair<int,int> lastRange = bounds;
 
-unordered_map<ll, vector<pair<ll,ll>>> adjList;
+    int n = adjList[v].size();
+    for (int i = 0; i < n; i++) {
+        int v2 = adjList[v][i].first;
+        int wt = adjList[v][i].second;
 
-// first number is to, second number is difficulty, the from field is the index
+        if (visited[v2]) {
+            continue;
+        }
 
+        int nextVert = -1;
+        int nextWt = -1;
 
-/*
-Skiing process
-If no hills connect to the current breakpoint, they will stop
-A panda will never ski to a hill previously skied to
-The panda will consider all hills connected, and will go down the hill
-that minimizes |s - d|, if there is a tie they will go down the hill
-with the lowest difficulty level
-And repeat
-*/
-void dfs(ll panda, ll curr) { 
-    breakPoints[curr]++; // a panda somehow made it, yay!!
-    visited[curr] = 1;
-
-    ll skill = skillLevel[panda];
-
-    ll bestHill = 0;
-    ll minimizedValue = 9223372036854775807;
-    ll bestHillDiffValue = 0;
-
-    for (pair<ll,ll> myEpicHill : adjList[curr]) {
-        ll goingTo = myEpicHill.first;
-        ll difficulty = myEpicHill.second;
-        if (visited[goingTo] == 1) {
-            continue; // skip to next element in arr if we already went there
-        } 
-        ll minimize = abs(skill - difficulty);
-        if (minimize < minimizedValue) {
-            minimizedValue = minimize;
-            bestHill = goingTo;
-            bestHillDiffValue = difficulty;
-        } else if (minimize == minimizedValue) {
-            if (difficulty < bestHillDiffValue) {
-                minimizedValue = minimize;
-                bestHill = goingTo;
-                bestHillDiffValue = difficulty;
+        if (i + 1 != n) {
+            if (!visited[adjList[v][i+1].second]) {
+                nextWt = adjList[v][i+1].second;
+                nextVert = adjList[v][i+1].first;
+            } else if (i + 3 <= n) {
+                nextWt = adjList[v][i+2].second;
+                nextVert = adjList[v][i+2].first;                
             }
         }
+        
     }
-
-    if (bestHill == 0) {
-        return; // no more values connected
-    }
-
-    dfs(panda,bestHill);
 }
 
 int main() {
     cin >> N >> K;
-    /*
-    N breakpoints from 1 -> N
-    breakpoint with id 1 is the root
-    N-1 hills which connect the breakpoints
-    ith hill has difficulty di
-    K pandas, the ith panda has skill level of si
-    all start at breakpoint 1 and start skiing
-    */
-    for (ll i = 0; i < N - 1; i++) {
-        ll a, b, d;
-        // Hill between breakpoint a and b with difficulty d
+    for (int i = 0; i < N - 1; i++) {
+        int a, b, d;
         cin >> a >> b >> d;
-
-        adjList[a].push_back({b,d});
-        adjList[b].push_back({a,d});
-
+        adjList[a].push_back(make_pair(b,d));
+        ajdList[b].push_back(make_pair(a,d));
     }
-    for (ll i = 0; i < K; i++) {
-        cin >> skillLevel[i];
-        // i'th panda has skilllevel[i]
-        //visited = {0}; // reset every element to 0
-        memset(visited,0,mx);
 
-        dfs(i,1); // we start at 1 as the root
+    for (int i = 1; i <= K; i++) {
+        cin >> skillLevels[i];
     }
-    for (ll i = 1; i < N; i++) {
-        cout << breakPoints[i] << " ";
-    }
-    cout << breakPoints[N] << "\n";
+
 }

@@ -5,10 +5,11 @@ using namespace std;
 
 int main() {
     /*
-    Binary search is an absolute classic
-    The fundamental idea behind binary search is splitting the search
-    interval in two.
-    Commonly used in finding a number in a sorted array.
+        Binary search is an absolute classic
+        The fundamental idea behind binary search is splitting the search
+        interval in two. Commonly used in finding a number in a sorted array.
+
+        Time complexity: O(log n)
     */
 
     int arr[] = {69,420,69420,1,505,382,-500000,-4000,-300,-200,5,20,30,11};
