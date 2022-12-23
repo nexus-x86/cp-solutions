@@ -3,36 +3,33 @@
 // Saturday December 17 2022
 
 #include <iostream>
-#include <unordered_map>
 #include <vector>
 
 using namespace std;
 
-const int mx = 1e5+5;
-unordered_map<int, vector<int>> adjList;
-
-int main() {
+int main()
+{
     cin.sync_with_stdio(0);
     cin.tie(0);
-    
+
     int N, M;
     cin >> N >> M;
-    vector<int> PhoRests;
-
-    for (int i = 0; i < M; i++) {
-        int a;
-        cin >> a;
-        PhoRests.push_back(a);
+    vector<int> pho(M, -1);
+    for (int i = 0; i < M; i++)
+    {
+        cin >> pho[i];
     }
-
-    for (int i = 0; i < N - 1; i++) {
+    vector<int> adjList[N - 1];
+    int visited[N] = {0};
+    for (int i = 0; i < N - 1; i++)
+    {
         int a, b;
         cin >> a >> b;
         adjList[a].push_back(b);
         adjList[b].push_back(a);
     }
 
-    
+    pho[0];
 
     return 0;
 }
