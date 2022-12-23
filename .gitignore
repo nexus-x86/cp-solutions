@@ -35,3 +35,4 @@
 *.cph
 *.vscode
 goals.txt
+.DS_Store
