@@ -15,11 +15,7 @@ int main()
     int N, M, K;
     cin >> N >> M >> K;
 
-    // N notes, M possible pitches, K good samples
-    vector<int> notes(N, 0);
-
-    // We can only use notes less than or equal to M
-    // Each note is it's own good sample.
+    
 
     return 0;
 }
