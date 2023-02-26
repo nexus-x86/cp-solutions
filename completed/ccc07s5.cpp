@@ -10,10 +10,10 @@ using namespace std;
 
 typedef long long ll;
 
-const ll mx = 3e4+10;
+const ll mx = 3e4+500;
 
 ll val[mx];
-ll dp[mx][505];
+ll dp[501][mx];
 
 int main() {
     ll t;

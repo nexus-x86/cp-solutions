@@ -1,4 +1,4 @@
-// http://www.usaco.org/index.php?page=viewproblem2&cpid=1061
+// https://dmoj.ca/problem/ccc16s3
 // https://github.com/nexus-x86/cp-solutions
 // Saturday December 17 2022
 
